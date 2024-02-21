@@ -56,7 +56,21 @@ def main():
         
         
     elif apply_filter == 3:
-        kernel = get_laplacian_kernel()
+        x=input("size:")
+        x=int(x)
+        y=input("1.true \n 0.false:")
+        y=int(y)
+        kernel = get_laplacian_kernel(x,y)
+        center_x=int(input("kernel center_x:"))
+        center_y=int(input("kernel_center_y:"))
+        b1, g1, r1 = cv2.split(img)
+        b1 = convolution("blue",b1, kernel,center_x,center_y)
+        g1 = convolution("green",g1 , kernel,center_x,center_y)
+        r1 = convolution("red",r1 , kernel,center_x,center_y)
+        merged = cv2.merge((b1, g1, r1))
+        print(b1)
+        cv2.imshow("merged", merged)
+        
     elif apply_filter == 4:
         kernel = get_log_kernel()
     elif apply_filter == 5:
@@ -141,6 +155,9 @@ def get_laplacian_kernel(size, center_coefficient):
     else:
         coefficient=1
     laplacian_kernel=np.ones((size,size),dtype=int)*coefficient
+    center = (size*size)-1
+    laplacian_kernel[size//2][size//2]= center*(-coefficient)
+    print(laplacian_kernel)
     #now updating the center
     
     
