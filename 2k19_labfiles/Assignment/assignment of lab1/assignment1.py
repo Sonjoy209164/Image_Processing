@@ -12,9 +12,14 @@ import math
 
 def main():
     print("Assignment 1")
-    color_mode = input("Enter the colormode \n RGB(1) \n GRAY(0) :")
+    color_mode = input("Enter the colormode \n RGB(1) \n HSV(0) :")
     color_mode = int(color_mode)
-    img = cv2.imread(r"D:\4.1\image lab\sonjoy image\Image_Processing\2k19_labfiles\Assignment\assignment of lab1\Lena.jpg",color_mode)
+    if color_mode == 1:
+        img = cv2.imread(r"D:\4.1\image lab\sonjoy image\Image_Processing\2k19_labfiles\Assignment\assignment of lab1\Lena.jpg",cv2.IMREAD_COLOR)
+    elif color_mode == 0:
+        img = cv2.imread(r"D:\4.1\image lab\sonjoy image\Image_Processing\2k19_labfiles\Assignment\assignment of lab1\Lena.jpg",cv2.COLOR_RGB2HSV)
+    
+    
     img = cv2.resize(img, (500,500))
     
     
@@ -72,7 +77,21 @@ def main():
         cv2.imshow("merged", merged)
         
     elif apply_filter == 4:
-        kernel = get_log_kernel()
+        x=input("size:")
+        x=int(x)
+        y=input("sigma:")
+        y=int(y)
+        kernel = get_log_kernel(x,y)
+        center_x=int(input("kernel center_x:"))
+        center_y=int(input("kernel_center_y:"))
+        b1, g1, r1 = cv2.split(img)
+        b1 = convolution("blue",b1, kernel,center_x,center_y)
+        g1 = convolution("green",g1 , kernel,center_x,center_y)
+        r1 = convolution("red",r1 , kernel,center_x,center_y)
+        merged = cv2.merge((b1, g1, r1))
+        print(b1)
+        cv2.imshow("merged", merged)
+        
     elif apply_filter == 5:
         h_v= int(input("1.Horizontal\n 2.Vertical"))
         kernel = get_sobel_kernel(h_v)
@@ -163,8 +182,22 @@ def get_laplacian_kernel(size, center_coefficient):
     
     return laplacian_kernel
 
-def get_log_kernel():
-    # Implement LoG kernel generation here
+def get_log_kernel(size,sigma):
+    kernel = np.zeros((size, size))
+    c = (1 / (2 * np.pi * sigma ** 2))
+    size = size // 2
+
+    for x in range(-size, size + 1):
+        for y in range(-size, size + 1):
+            kernel[x + size, y + size] = c * np.exp(-((x * x) + (y * y)) / (2 * sigma ** 2))
+
+    gauss = kernel / np.sum(kernel)
+
+    for x in range(-size, size + 1):
+        for y in range(-size, size + 1):
+            kernel[x + size, y + size] = -1 * ((x * x) + (y * y) - (2 * sigma ** 2)) * gauss[x + size, y + size]
+
+    return kernel
     return log_kernel
 
 def get_sobel_kernel(h_v):
